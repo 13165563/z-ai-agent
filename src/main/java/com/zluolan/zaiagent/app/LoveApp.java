@@ -1,5 +1,7 @@
 package com.zluolan.zaiagent.app;
 
+import com.zluolan.zaiagent.advisor.MyLoggerAdvisor;
+import com.zluolan.zaiagent.advisor.ReReadingAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -47,6 +49,9 @@ public class LoveApp {
                 .user(message)
                 .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
                       )
+                .advisors(/*new ReReadingAdvisor()*/
+                        new MyLoggerAdvisor()
+                )
                 .call()
                 .chatResponse();
         String content = response.getResult().getOutput().getText();

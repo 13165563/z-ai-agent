@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Spring Ai Ollama本地 调用
  * @author zluolan
  */
-@Component
+//@Component
 public class OllamaAiInvoke implements CommandLineRunner {
 
     @Resource
