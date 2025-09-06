@@ -1,6 +1,6 @@
 ### CUSTOM ###
 application-local.yml
-chat-memory
+chat_memories
 src/main/java/com/zluolan/zaiagent/demo/invoke/TestApiKey.java
 HELP.md
 target/
