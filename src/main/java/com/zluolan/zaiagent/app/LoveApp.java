@@ -1,13 +1,12 @@
 package com.zluolan.zaiagent.app;
 
 import com.zluolan.zaiagent.advisor.MyLoggerAdvisor;
-import com.zluolan.zaiagent.advisor.ReReadingAdvisor;
+
+import com.zluolan.zaiagent.chatmemeory.FileBasedChatMemoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.memory.*;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
@@ -30,9 +29,15 @@ public class LoveApp {
     public LoveApp(ChatModel dashscopeChatModel) {
         // 初始化基于内存的对话记忆
         InMemoryChatMemoryRepository chatMemoryRepository = new InMemoryChatMemoryRepository();
+
+        // 创建基于文件的记忆存储
+        ChatMemoryRepository fileRepository =
+                new FileBasedChatMemoryRepository("./chat_memories");
+
         int MAX_MESSAGES = 10;
         MessageWindowChatMemory messageWindowChatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(chatMemoryRepository)
+//                .chatMemoryRepository(chatMemoryRepository)
+                .chatMemoryRepository(fileRepository)
                 .maxMessages(MAX_MESSAGES)
                 .build();
 
