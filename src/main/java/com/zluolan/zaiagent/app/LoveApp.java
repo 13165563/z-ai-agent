@@ -32,14 +32,13 @@ public class LoveApp {
             "恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。" +
             "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。";
 
-    public LoveApp(ChatModel dashscopeChatModel, MysqlChatMemoryRepository mysqlChatMemoryRepository) {
+    public LoveApp(ChatModel ollamaChatModel, MysqlChatMemoryRepository mysqlChatMemoryRepository) {
         // 初始化基于内存的对话记忆
         InMemoryChatMemoryRepository chatMemoryRepository = new InMemoryChatMemoryRepository();
 
         // 创建基于文件的记忆存储
         ChatMemoryRepository fileRepository =
                 new FileBasedChatMemoryRepository("./chat_memories");
-
 
         int MAX_MESSAGES = 10;
         MessageWindowChatMemory messageWindowChatMemory = MessageWindowChatMemory.builder()
@@ -49,7 +48,7 @@ public class LoveApp {
                 .maxMessages(MAX_MESSAGES)
                 .build();
 
-        chatClient = ChatClient.builder(dashscopeChatModel)
+        chatClient = ChatClient.builder(ollamaChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(messageWindowChatMemory)

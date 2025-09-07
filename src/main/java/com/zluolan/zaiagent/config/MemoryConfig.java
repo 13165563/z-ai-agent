@@ -1,33 +1,36 @@
 package com.zluolan.zaiagent.config;
 
 import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-import javax.sql.DataSource;
-
 @Configuration
 public class MemoryConfig {
 
+    @Value("${spring.datasource.url}")
+    private String mysqlJdbcUrl;
+
+    @Value("${spring.datasource.username}")
+    private String mysqlUsername;
+
+    @Value("${spring.datasource.password}")
+    private String mysqlPassword;
+
+    @Value("${spring.datasource.driver-class-name}")
+    private String mysqlDriverClassName;
+
     @Bean
-    public DataSource dataSource() {
+    public MysqlChatMemoryRepository mysqlChatMemoryRepository() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://192.168.213.128:3306/ai_chat_memory?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai");
-        dataSource.setUsername("root");
-        dataSource.setPassword("123");
-        return dataSource;
-    }
+        dataSource.setDriverClassName(mysqlDriverClassName);
+        dataSource.setUrl(mysqlJdbcUrl);
+        dataSource.setUsername(mysqlUsername);
+        dataSource.setPassword(mysqlPassword);
 
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);
-    }
-
-    @Bean
-    public MysqlChatMemoryRepository mysqlChatMemoryRepository(JdbcTemplate jdbcTemplate) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return MysqlChatMemoryRepository.mysqlBuilder()
                 .jdbcTemplate(jdbcTemplate)
                 .build();
