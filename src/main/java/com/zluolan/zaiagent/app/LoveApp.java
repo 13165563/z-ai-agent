@@ -7,12 +7,14 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.*;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.document.DocumentReader;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -106,5 +108,25 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
 
+    }
+
+    @Resource
+    private Advisor loveAppRagCloudAdvisor;
+
+    public String doChatWithCloudRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
+                        .param(CONVERSATION_ID, 10))
+                // 开启日志，便于观察效果
+//                .advisors(new MyLoggerAdvisor())
+                // 应用增强检索服务（云知识库服务）
+                .advisors(loveAppRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
     }
 }
