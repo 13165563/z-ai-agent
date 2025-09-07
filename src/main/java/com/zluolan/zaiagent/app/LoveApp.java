@@ -1,7 +1,9 @@
 package com.zluolan.zaiagent.app;
 
-import com.zluolan.zaiagent.advisor.MyLoggerAdvisor;
 
+import com.alibaba.cloud.ai.autoconfigure.memory.MysqlChatMemoryProperties;
+import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
+import com.zluolan.zaiagent.advisor.MyLoggerAdvisor;
 import com.zluolan.zaiagent.chatmemeory.FileBasedChatMemoryRepository;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,7 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.*;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.document.DocumentReader;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class LoveApp {
             "恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。" +
             "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。";
 
-    public LoveApp(ChatModel dashscopeChatModel) {
+    public LoveApp(ChatModel dashscopeChatModel, MysqlChatMemoryRepository mysqlChatMemoryRepository) {
         // 初始化基于内存的对话记忆
         InMemoryChatMemoryRepository chatMemoryRepository = new InMemoryChatMemoryRepository();
 
@@ -40,10 +40,12 @@ public class LoveApp {
         ChatMemoryRepository fileRepository =
                 new FileBasedChatMemoryRepository("./chat_memories");
 
+
         int MAX_MESSAGES = 10;
         MessageWindowChatMemory messageWindowChatMemory = MessageWindowChatMemory.builder()
 //                .chatMemoryRepository(chatMemoryRepository)
-                .chatMemoryRepository(fileRepository)
+//                .chatMemoryRepository(fileRepository)
+                .chatMemoryRepository(mysqlChatMemoryRepository)
                 .maxMessages(MAX_MESSAGES)
                 .build();
 
@@ -56,6 +58,9 @@ public class LoveApp {
                 .build();
     }
 
+    /**
+     * 测试自定义Re2 和 Logger 顾问
+     */
     public String doChat(String message, String chatId) {
         ChatResponse response = chatClient
                 .prompt()
@@ -63,7 +68,7 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
                 )
                 .advisors(/*new ReReadingAdvisor()*/
-                        new MyLoggerAdvisor()
+                        /*new MyLoggerAdvisor()*/
                 )
                 .call()
                 .chatResponse();
@@ -73,6 +78,9 @@ public class LoveApp {
     }
 
 
+    /**
+     * 结构化输出
+     */
     record LoveReport(String title, List<String> suggestions) {
     }
 
@@ -89,6 +97,9 @@ public class LoveApp {
         return loveReport;
     }
 
+    /**
+     * 使用本地知识库
+     */
     @Resource
     private VectorStore loveAppVectorStore;
 
@@ -110,9 +121,12 @@ public class LoveApp {
 
     }
 
+
+    /**
+     * 使用云知识库服务
+     */
     @Resource
     private Advisor loveAppRagCloudAdvisor;
-
     public String doChatWithCloudRag(String message, String chatId) {
         ChatResponse chatResponse = chatClient
                 .prompt()
