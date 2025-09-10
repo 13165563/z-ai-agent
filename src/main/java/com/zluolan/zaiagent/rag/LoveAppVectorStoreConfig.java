@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * 实现初始化向量数据库并且保存文档的方法
+ * @author zluolan
+ */
 @Configuration
 public class LoveAppVectorStoreConfig {
 
