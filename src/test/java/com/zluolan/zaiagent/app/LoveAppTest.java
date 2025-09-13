@@ -4,6 +4,10 @@ import cn.hutool.core.lang.UUID;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.document.DocumentTransformer;
+import org.springframework.ai.document.DocumentWriter;
+import org.springframework.ai.rag.retrieval.join.ConcatenationDocumentJoiner;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
@@ -55,5 +59,11 @@ class LoveAppTest {
         Assertions.assertNotNull(answer);
     }
 
-
+    @Test
+    void doChatWithPgRag() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我已经结婚了，但是婚后关系不太亲密，怎么办？";
+        String answer =  loveApp.doChatWithPgRag(message, chatId);
+        Assertions.assertNotNull(answer);
+    }
 }

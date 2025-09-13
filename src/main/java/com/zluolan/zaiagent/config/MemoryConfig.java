@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-@Configuration
+//@Configuration
 public class MemoryConfig {
 
     @Value("${spring.datasource.url}")

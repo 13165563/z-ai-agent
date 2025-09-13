@@ -32,7 +32,7 @@ public class LoveApp {
             "恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。" +
             "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。";
 
-    public LoveApp(ChatModel ollamaChatModel, MysqlChatMemoryRepository mysqlChatMemoryRepository) {
+    public LoveApp(ChatModel ollamaChatModel/*, MysqlChatMemoryRepository mysqlChatMemoryRepository*/) {
         // 初始化基于内存的对话记忆
         InMemoryChatMemoryRepository chatMemoryRepository = new InMemoryChatMemoryRepository();
 
@@ -44,7 +44,7 @@ public class LoveApp {
         MessageWindowChatMemory messageWindowChatMemory = MessageWindowChatMemory.builder()
 //                .chatMemoryRepository(chatMemoryRepository)
 //                .chatMemoryRepository(fileRepository)
-                .chatMemoryRepository(mysqlChatMemoryRepository)
+//                .chatMemoryRepository(mysqlChatMemoryRepository)
                 .maxMessages(MAX_MESSAGES)
                 .build();
 
@@ -110,7 +110,7 @@ public class LoveApp {
                         .param(CONVERSATION_ID, 10))
                 // 开启日志，便于观察效果
                 .advisors(new MyLoggerAdvisor())
-                // 应用知识库问答
+                // 应用知识库问答（本地内存）
                 .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
                 .call()
                 .chatResponse();
@@ -136,6 +136,28 @@ public class LoveApp {
 //                .advisors(new MyLoggerAdvisor())
                 // 应用增强检索服务（云知识库服务）
                 .advisors(loveAppRagCloudAdvisor)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+
+    /**
+     * 使用自建Postgres知识库
+     */
+    @Resource
+    private VectorStore pgVectorVectorStore;
+    public String doChatWithPgRag(String message, String chatId) {
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
+                        .param(CONVERSATION_ID, 10))
+                // 开启日志，便于观察效果
+//                .advisors(new MyLoggerAdvisor())
+                // 应用增强检索服务（基于pg向量存储）
+                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
