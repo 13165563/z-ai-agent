@@ -2,11 +2,13 @@ package com.zluolan.zaiagent.rag;
 
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,13 @@ public class PgVectorVectorStoreConfigTest {
     @Resource
     VectorStore pgVectorVectorStore;
 
+    @Resource
+    JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void cleanVectorStore() {
+        jdbcTemplate.execute("TRUNCATE TABLE vector_store");
+    }
     @Test
     void test() {
         List<Document> documents = List.of(
@@ -28,5 +37,6 @@ public class PgVectorVectorStoreConfigTest {
         // 相似度查询
         List<Document> results = pgVectorVectorStore.similaritySearch(SearchRequest.builder().query("Spring").topK(5).build());
         Assertions.assertNotNull(results);
+        results.forEach(doc -> System.out.println(doc.getText() + " | " + doc.getMetadata()));
     }
 }
