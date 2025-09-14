@@ -32,10 +32,24 @@ public class PgVectorVectorStoreConfig {
                 .vectorTableName("vector_store")     // Optional: defaults to "vector_store"
                 .maxDocumentBatchSize(10000)         // Optional: defaults to 10000
                 .build();
-        // 加载文档
-        List<Document> documents = loveAppDocumentLoader.loadMarkdowns();
-        vectorStore.add(documents);
-        return vectorStore;
 
+        // 加载文档
+//        List<Document> documents = loveAppDocumentLoader.loadMarkdowns();
+//        vectorStore.add(documents);
+//        return vectorStore;
+
+        // 判断 vector_store 表是否已有数据
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM vector_store", Integer.class);
+
+        if (count != null && count == 0) {
+            // 只有表为空时才加载文档
+            List<Document> documents = loveAppDocumentLoader.loadMarkdowns();
+            vectorStore.add(documents);
+        } else {
+            System.out.println("✅ 已检测到 vector_store 中存在数据，跳过文档插入。");
+        }
+
+        return vectorStore;
     }
 }
