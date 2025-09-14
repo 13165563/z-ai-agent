@@ -22,10 +22,6 @@ public class PgVectorVectorStoreConfigTest {
     @Resource
     JdbcTemplate jdbcTemplate;
 
-    @BeforeEach
-    void cleanVectorStore() {
-        jdbcTemplate.execute("TRUNCATE TABLE vector_store");
-    }
     @Test
     void test() {
         List<Document> documents = List.of(
