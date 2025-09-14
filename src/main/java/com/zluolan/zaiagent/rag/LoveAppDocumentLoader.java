@@ -27,13 +27,15 @@ public class LoveAppDocumentLoader {
         try {
             // 这里可以修改为你要加载的多个 Markdown 文件的路径模式
             Resource[] resources = resourcePatternResolver.getResources("classpath:document/*.md");
+
             for (Resource resource : resources) {
                 String fileName = resource.getFilename();
+
                 MarkdownDocumentReaderConfig config = MarkdownDocumentReaderConfig.builder()
                         .withHorizontalRuleCreateDocument(true)
                         .withIncludeCodeBlock(false)
                         .withIncludeBlockquote(false)
-                        .withAdditionalMetadata("filename", fileName)
+                        .withAdditionalMetadata("filename", fileName) // 主要是为每个文件注入独有的 metadata
                         .build();
                 MarkdownDocumentReader reader = new MarkdownDocumentReader(resource, config);
                 allDocuments.addAll(reader.get());
