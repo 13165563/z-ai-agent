@@ -4,11 +4,13 @@ import cn.hutool.core.io.FileUtil;
 import com.zluolan.zaiagent.constant.FileConstant;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.stereotype.Component;
 
 /**
  * 文件操作工具类
  * 提供基本的文件读写功能，用于AI Agent执行文件操作任务
  */
+@Component
 public class FileOperationTool {
 
     /**
@@ -27,9 +29,9 @@ public class FileOperationTool {
     public String readFile(@ToolParam(description = "Name of the file to read") String fileName) {
         String filePath = FILE_DIR + "/" + fileName;
         try {
-            return FileUtil.readUtf8String(filePath);
+            return "[TOOL_EXECUTION_RESULT][FILE_READ_SUCCESS] File content successfully read from: " + filePath + "\n[CONTENT]:\n" + FileUtil.readUtf8String(filePath);
         } catch (Exception e) {
-            return "Error reading file: " + e.getMessage();
+            return "[TOOL_EXECUTION_RESULT][FILE_READ_ERROR] Error reading file: " + e.getMessage();
         }
     }
 
@@ -42,16 +44,16 @@ public class FileOperationTool {
      */
     @Tool(description = "Write content to a file")
     public String writeFile(
-        @ToolParam(description = "Name of the file to write") String fileName,
-        @ToolParam(description = "Content to write to the file") String content) {
+            @ToolParam(description = "Name of the file to write") String fileName,
+            @ToolParam(description = "Content to write to the file") String content) {
         String filePath = FILE_DIR + "/" + fileName;
         try {
             // 创建目录
             FileUtil.mkdir(FILE_DIR);
             FileUtil.writeUtf8String(content, filePath);
-            return "File written successfully to: " + filePath;
+            return "[TOOL_EXECUTION_RESULT][FILE_WRITE_SUCCESS] File successfully written to: " + filePath + " (Content length: " + content.length() + " characters)";
         } catch (Exception e) {
-            return "Error writing to file: " + e.getMessage();
+            return "[TOOL_EXECUTION_RESULT][FILE_WRITE_ERROR] Error writing to file: " + e.getMessage();
         }
     }
 }

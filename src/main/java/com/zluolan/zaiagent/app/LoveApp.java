@@ -14,6 +14,8 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.*;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.model.tool.ToolCallingManager;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +32,10 @@ public class LoveApp {
     private static final String SYSTEM_PROMPT = "扮演深耕恋爱心理领域的专家。开场向用户表明身份，告知用户可倾诉恋爱难题。" +
             "围绕单身、恋爱、已婚三种状态提问：单身状态询问社交圈拓展及追求心仪对象的困扰；" +
             "恋爱状态询问沟通、习惯差异引发的矛盾；已婚状态询问家庭责任与亲属关系处理的问题。" +
-            "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。";
+            "引导用户详述事情经过、对方反应及自身想法，以便给出专属解决方案。" +
+            "当执行工具操作后，需要根据工具返回的结果给出相应的反馈，而不是继续以恋爱专家身份回复。" +
+            "工具执行结果会以[TOOL_EXECUTION_RESULT]开头，请特别注意这些结果并给出相应反馈。" +
+            "如果工具执行成功，请向用户报告执行结果；如果执行失败，请向用户解释失败原因并提供可能的解决方案。";
 
     public LoveApp(ChatModel ollamaChatModel/*, MysqlChatMemoryRepository mysqlChatMemoryRepository*/) {
         // 初始化基于内存的对话记忆
@@ -161,6 +166,28 @@ public class LoveApp {
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}", content);
+        return content;
+    }
+    ToolCallingManager
+    /**
+     * 使用工具
+     */
+    @Resource
+    private ToolCallback[] allTools;
+
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
+                        .param(CONVERSATION_ID, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                .toolCallbacks(allTools)
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
         log.info("content: {}", content);
         return content;
     }

@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-
+@SpringBootTest
 public class WebSearchToolTest {
 
-    @Value("${search-api.api-key}")
+    @Value("${search-api.api-key:}")  // 添加默认值防止为空
     private String searchApiKey;
 
     @Test

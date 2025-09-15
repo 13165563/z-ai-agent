@@ -6,20 +6,27 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Component
 public class WebSearchTool {
 
     // SearchAPI 的搜索接口地址
     private static final String SEARCH_API_URL = "https://www.searchapi.io/api/v1/search";
 
-    private final String apiKey;
+    @Value("${search-api.api-key}")
+    private String apiKey;
 
+    public WebSearchTool() {
+    }
+    // 带参数的构造器（供手动创建实例使用）
     public WebSearchTool(String apiKey) {
         this.apiKey = apiKey;
     }
+
 
     @Tool(description = "Search for information from Baidu Search Engine")
     public String searchWeb(
@@ -36,18 +43,18 @@ public class WebSearchTool {
 
             // 检查是否存在错误信息
             if (jsonObject.containsKey("error")) {
-                return "Search API error: " + jsonObject.getStr("error");
+                return "[TOOL_EXECUTION_RESULT][SEARCH_ERROR] Search API error: " + jsonObject.getStr("error");
             }
 
             // 检查搜索结果是否为空
             if (!jsonObject.containsKey("organic_results")) {
-                return "No search results found. Full response: " + response;
+                return "[TOOL_EXECUTION_RESULT][SEARCH_ERROR] No search results found. Full response: " + response;
             }
 
             // 提取 organic_results 部分
             JSONArray organicResults = jsonObject.getJSONArray("organic_results");
             if (organicResults == null || organicResults.isEmpty()) {
-                return "No search results found.";
+                return "[TOOL_EXECUTION_RESULT][SEARCH_ERROR] No search results found.";
             }
 
             // 取出返回结果的前 5 条
@@ -57,8 +64,10 @@ public class WebSearchTool {
                 topResults.add(organicResults.get(i));
             }
 
-            // 格式化结果为易读的字符串
-            StringBuilder result = new StringBuilder();
+            // 格式化结果
+            StringBuilder result = new StringBuilder("[TOOL_EXECUTION_RESULT][SEARCH_SUCCESS]\n");
+            result.append("[SEARCH_QUERY]: ").append(query).append("\n");
+            result.append("[SEARCH_RESULTS]:\n");
             for (int i = 0; i < topResults.size(); i++) {
                 if (i > 0) result.append("\n---\n");
                 JSONObject item = topResults.getJSONObject(i);

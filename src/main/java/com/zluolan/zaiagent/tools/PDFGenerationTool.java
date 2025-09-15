@@ -12,9 +12,10 @@ import com.zluolan.zaiagent.constant.FileConstant;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-
+@Component
 public class PDFGenerationTool {
 
     @Tool(description = "Generate a PDF file with given content")
@@ -43,9 +44,9 @@ public class PDFGenerationTool {
                 // 添加段落并关闭文档
                 document.add(paragraph);
             }
-            return "PDF generated successfully to: " + filePath;
+            return "[TOOL_EXECUTION_RESULT][PDF_GENERATION_SUCCESS] PDF successfully generated to: " + filePath;
         } catch (IOException e) {
-            return "Error generating PDF: " + e.getMessage();
+            return "[TOOL_EXECUTION_RESULT][PDF_GENERATION_ERROR] Error generating PDF: " + e.getMessage();
         }
     }
 }
