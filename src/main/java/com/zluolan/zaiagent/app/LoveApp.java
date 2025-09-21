@@ -204,7 +204,7 @@ public class LoveApp {
                 .advisors(spec -> spec.param(CONVERSATION_ID, chatId)
                         .param(CONVERSATION_ID, 10))
                 // 开启日志，便于观察效果
-//                .advisors(new MyLoggerAdvisor())
+                .advisors(new MyLoggerAdvisor())
                 .toolCallbacks(toolCallbackProvider)
                 .call()
                 .chatResponse();
