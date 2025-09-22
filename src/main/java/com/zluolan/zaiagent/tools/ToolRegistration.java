@@ -16,15 +16,16 @@ public class ToolRegistration {
             WebScrapingTool webScrapingTool,
             ResourceDownloadTool resourceDownloadTool,
             TerminalOperationTool terminalOperationTool,
+            TerminateTool terminateTool,
             PDFGenerationTool pdfGenerationTool) {
-
         return ToolCallbacks.from(
                 fileOperationTool,
                 webSearchTool,
                 webScrapingTool,
                 resourceDownloadTool,
                 terminalOperationTool,
-                pdfGenerationTool
+                pdfGenerationTool,
+                terminateTool
         );
     }
 }
